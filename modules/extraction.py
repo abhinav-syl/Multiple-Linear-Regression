@@ -5,6 +5,9 @@ import json
 
 class extract:
     def __init__(self, start_time, end_time):
+        '''
+        Initialize MongoDB client adn get start_time and end_time variables
+        '''
         self.client = mongodb.AsyncIOMotorClient()
         self.mydb = self.client["test"]
         self.mycol = self.mydb["sensor_data"]
@@ -13,6 +16,9 @@ class extract:
         print(str(self.start_time) + '-' + str(self.end_time))
 
     async def do_find(self):
+        '''
+        Find the relevant values in the given time frame
+        '''
         self.data = []
         cursor = self.mycol.find({'start_epoch': {'$gte': self.start_time}, 'end_epoch': {'$lt': self.end_time}})
         async for document in cursor:
@@ -24,6 +30,7 @@ class extract:
             self.data.append({"name": document['sensor_name'], "data": document['data']})
 
     def to_json(self, name, operation, lists):
+        # convert data file to json
         with open(name, operation) as infile:
             if operation == "r":
                 lists = json.load(infile)
@@ -36,6 +43,8 @@ class extract:
     def run(self):
         check = []
         loop = asyncio.get_event_loop()
+        # Loop over a certain times to get data relative to Start time, 
+        # implemented a checklist to prevent duplicates
         for i in range(0, 50):
             self.end_time = self.start_time + 5 * 86385
             name = "data/data_" + str(self.start_time) + '-' + str(self.end_time) + ".json"

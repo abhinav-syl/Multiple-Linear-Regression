@@ -8,6 +8,7 @@ import pickle
 
 class predict:
     def __init__(self):
+        # get  a list of json files in train folder
         self.files = []
         self.dir = 'data/test/'
         for path in os.listdir(self.dir):
@@ -24,6 +25,7 @@ class predict:
                 del json_object
 
     def json_to_df(self):
+        # convert all json files into a single dataframe for further calculations
         data = []
         data_total = {}
         for file in self.files:
@@ -37,6 +39,7 @@ class predict:
                     try:
                         data_total[i[0]]
                     except Exception as E:
+                        print(E)
                         data_total[i[0]] = []
                     data_total[i[0]].append(j['value'])
         data_comp = data_total
@@ -59,6 +62,7 @@ class predict:
         df = df.drop(['Pump Radial Bearing Vibration'], axis=1)
         for i in range(0, len(df)):
             x_train.append(df.iloc[i])
+        # convert to array for faster calculations
         x_train = np.array(x_train)
 
         y_true = np.array(y_true)
@@ -66,6 +70,7 @@ class predict:
 
         model = LinearRegression().fit(x_train, y_true)
 
+        # save the model as a pickle file
         filename = 'sklearn.sav'
         pickle.dump(model, open(filename, 'wb'))
 
